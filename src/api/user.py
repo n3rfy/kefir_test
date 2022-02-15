@@ -1,9 +1,21 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from ..services.user import User
 
-router = APIRouter(
-    prefix='/users'
+from ..models.user import (
+    UsersListElementModel,
 )
 
-@router.get('/')
-async def get_users():
-    return []
+router = APIRouter(
+    prefix='/users',
+    tags=['user']
+)
+
+@router.get('/', response_model=list[UsersListElementModel])
+async def get_users(
+    user: User = Depends(),
+    page: int = 0,
+    size: int = 10
+):
+    return await user.get_all(page, size) 
+
+
