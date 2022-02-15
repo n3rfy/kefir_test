@@ -48,23 +48,9 @@ class Private:
         user = self._get_user_by_id(id)
         return PrivateDetailUserResponseModel(**user.get_dict())
 
-    def get(
-        self,
-        page: int, 
-        size: int
-    ) -> PrivateUsersListResponseModel:
-        users = (
-            self.session
-            .query(tables.User)
-            .limit(size)
-            .offset(page*10)
-            .all()
-        )
-        citys = (
-            self.session
-            .query(tables.City)
-            .all()
-        )
+    def get(self, page: int, size: int) -> PrivateUsersListResponseModel:
+        users = self.session.query(tables.User).limit(size).offset(page*10).all()
+        citys = self.session.query(tables.City).all()
         data = [ UsersListElementModel(**user.get_dict()) for user in users ]
         citys = [ CitiesHintModel(**city.get_dict()) for city in citys ] 
         return PrivateUsersListResponseModel.convert(
@@ -74,13 +60,8 @@ class Private:
             total=len(data),
             citys=citys
         )
-        
 
-
-    def delete_user_by_id(
-        self,
-        id: int
-    ):
+    def delete_user_by_id(self, id: int):
         user = self._get_user_by_id(id)
         self.session.delete(user)
         self.session.commit()
@@ -96,16 +77,8 @@ class Private:
         self.session.commit()
         return PrivateDetailUserResponseModel(**user.get_dict())
 
-    def _get_user_by_id(
-        self,
-        id: int
-    ) -> tables.User:
-        user = (
-            self.session
-            .query(tables.User)
-            .filter(tables.User.id == id)
-            .first()
-        )
+    def _get_user_by_id(self, id: int) -> tables.User:
+        user = self.session.query(tables.User).filter(tables.User.id==id).first()
         if not user:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         return user
