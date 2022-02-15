@@ -1,97 +1,112 @@
-from ..database.tables import user
-from ..database.database import get_database
-from ..models.private import (
-    PrivateCreateUserModel,
+from ..database.database import get_session 
+from ..database import tables
+from ..models.private import ( 
+    PrivateCreateUserModel, 
     PrivateDetailUserResponseModel,
     PrivateUsersListResponseModel,
-    PrivateUsersListHintMetaModel,
     PrivateUpdateUserModel,
     CitiesHintModel
 )
-from ..models.other import PaginatedMetaDataModel
+from ..models.user import (
+    UsersListElementModel
+)
+from ..core.exceptions import error
 
-from asyncpg.exceptions import UniqueViolationError
-from databases import Database
+from sqlalchemy.orm import Session
 from fastapi import Depends, status, HTTPException
 
 
 class Private:
-    def __init__(self, database: Database = Depends(get_database)):
-        self.database = database
+    def __init__(self, session: Session = Depends(get_session)):
+        self.session = session 
 
-    async def create(
+    @error
+    def create(
         self,
         create_user: PrivateCreateUserModel
     ) -> PrivateDetailUserResponseModel:
-        heshed_user = create_user.get_heshed() 
-        query = user.insert().values(**heshed_user.dict())
-        try:
-            return PrivateDetailUserResponseModel(
-                id = await self.database.execute(query),
-                **heshed_user.dict()
-            )
-        except UniqueViolationError:
-            raise HTTPException(status_code=400, detail={
-                'code': 0,
-                'message': 'Invalid email'
-            })
+        user = tables.User(
+            first_name = create_user.first_name,
+            last_name = create_user.last_name,
+            email = create_user.email,
+            is_admin = create_user.is_admin,
+            password_hash = create_user.password + '123',
+            other_name = create_user.other_name,
+            phone = create_user.phone,
+            birthday = create_user.birthday,
+            city = create_user.city,
+            additional_info = create_user.additional_info,
+        )
+        self.session.add(user)
+        self.session.commit()
+        return PrivateDetailUserResponseModel(**user.get_dict())
 
-    async def get_user_by_id(
+    def get_user_by_id(
         self,
-        pk: int
+        id: int
     ) -> PrivateDetailUserResponseModel:
-        query = user.select().where(user.c.id==pk)
-        userx = await self.database.fetch_one(query)
-        if userx is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-        return PrivateDetailUserResponseModel.parse_obj(userx)
+        user = self._get_user_by_id(id)
+        return PrivateDetailUserResponseModel(**user.get_dict())
 
-    async def get(
+    def get(
         self,
         page: int, 
         size: int
     ) -> PrivateUsersListResponseModel:
-        query = user.select().limit(size).offset(page*10)
-        users = await self.database.fetch_all(query)
-        return PrivateUsersListResponseModel(
-            data=users,
-            meta={
-                'pagination': PaginatedMetaDataModel(
-                    total=len(users),
-                    page=page,
-                    size=size),
-                'hint': PrivateUsersListHintMetaModel(
-                    city = [
-                        CitiesHintModel(id = 0,name ='moskow'),
-                    ] 
-                )
-
-            }
+        users = (
+            self.session
+            .query(tables.User)
+            .limit(size)
+            .offset(page*10)
+            .all()
         )
-    
-    async def delete_user_by_id(
-        self,
-        pk: int
-    ):
-        await self.get_user_by_id(pk)
-        query = user.delete().where(user.c.id==pk)
-        await self.database.execute(query)
+        citys = (
+            self.session
+            .query(tables.City)
+            .all()
+        )
+        data = [ UsersListElementModel(**user.get_dict()) for user in users ]
+        citys = [ CitiesHintModel(**city.get_dict()) for city in citys ] 
+        return PrivateUsersListResponseModel.convert(
+            data=data,
+            page=page,
+            size=size,
+            total=len(data),
+            citys=citys
+        )
+        
 
-    async def update_user_by_id(
+
+    def delete_user_by_id(
         self,
-        pk: int,
+        id: int
+    ):
+        user = self._get_user_by_id(id)
+        self.session.delete(user)
+        self.session.commit()
+         
+    def update_user_by_id(
+        self,
+        id: int,
         update_user: PrivateUpdateUserModel
-    ):
-        user_u = await self.get_user_by_id(pk)
+    ) -> PrivateDetailUserResponseModel:
+        user = self._get_user_by_id(id) 
         for key, value in update_user:
-            setattr(user_u, key, value)
-        print(user_u)
-        user_u.pop('id', None) 
-        query = user.update().where(user.c.id==pk).values(**user_u.dict())
-        return PrivateDetailUserResponseModel(
-                id = await self.database.execute(query),
-                **user_u.dict()
+            setattr(user, key, value)
+        self.session.commit()
+        return PrivateDetailUserResponseModel(**user.get_dict())
+
+    def _get_user_by_id(
+        self,
+        id: int
+    ) -> tables.User:
+        user = (
+            self.session
+            .query(tables.User)
+            .filter(tables.User.id == id)
+            .first()
         )
-
-
+        if not user:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        return user
     

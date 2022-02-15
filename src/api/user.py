@@ -11,11 +11,11 @@ router = APIRouter(
 )
 
 @router.get('/', response_model=UsersListResponseModel)
-async def get_users(
+def get_users(
     user: User = Depends(),
     page: int = 0,
     size: int = 10
 ):
-    return await user.get_all(page, size) 
+    return user.get(page, size) 
 
 

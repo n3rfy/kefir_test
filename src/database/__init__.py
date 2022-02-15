@@ -1,4 +1,9 @@
-from .tables import user, city
-from .database import metadata, engine
+from .tables import (
+    User,
+    City,
+    Base
+)
+from .database import engine
 
-metadata.create_all(engine)
+
+Base.metadata.create_all(engine)

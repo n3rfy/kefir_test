@@ -1,14 +1,22 @@
-from databases import Database
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 from ..core.settings import settings 
 
-metadata = MetaData()
-database = Database(settings.database_url)
 engine = create_engine(
-    settings.database_url
+    settings.database_url,
+)
+
+Session = sessionmaker(
+    engine,
+    autocommit=False,
+    autoflush=False,
 )
 
 
-def get_database() -> Database:
-    return database
+def get_session():
+    session = Session()
+    try:
+        yield session
+    finally:
+        session.close()

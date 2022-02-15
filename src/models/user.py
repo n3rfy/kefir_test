@@ -28,5 +28,17 @@ class UsersListMetaDataModel(BaseModel):
 class UsersListResponseModel(BaseModel):
     data: list[UsersListElementModel]
     meta: UsersListMetaDataModel
-
+    
+    @staticmethod
+    def convert(data, size, page, total):
+        return UsersListResponseModel(
+            data = data,
+            meta = UsersListMetaDataModel(
+                pagination=PaginatedMetaDataModel(
+                    total=total,
+                    page=page,
+                    size=size
+                )
+            )
+        )
 

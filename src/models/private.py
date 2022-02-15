@@ -58,4 +58,20 @@ class PrivateUsersListMetaDataModel(BaseModel):
 class PrivateUsersListResponseModel(BaseModel):
     data: list[UsersListElementModel]
     meta: PrivateUsersListMetaDataModel
+    
+    @staticmethod
+    def convert(data, page, size, total, citys):
+        return PrivateUsersListResponseModel(
+            data = data,
+            meta = PrivateUsersListMetaDataModel(
+                pagination = PaginatedMetaDataModel(
+                    size = size,
+                    page = page,
+                    total = total
+                ),
+                hint = PrivateUsersListHintMetaModel(
+                    city = citys
+                )
 
+            )
+        )
