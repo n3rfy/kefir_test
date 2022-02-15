@@ -5,10 +5,12 @@ from ..models.private import (
     PrivateDetailUserResponseModel,
     PrivateUsersListResponseModel,
     PrivateUsersListHintMetaModel,
+    PrivateUpdateUserModel,
     CitiesHintModel
 )
 from ..models.other import PaginatedMetaDataModel
 
+from asyncpg.exceptions import UniqueViolationError
 from databases import Database
 from fastapi import Depends, status, HTTPException
 
@@ -23,10 +25,16 @@ class Private:
     ) -> PrivateDetailUserResponseModel:
         heshed_user = create_user.get_heshed() 
         query = user.insert().values(**heshed_user.dict())
-        return PrivateDetailUserResponseModel(
-            id = await self.database.execute(query),
-            **heshed_user.dict()
-        )
+        try:
+            return PrivateDetailUserResponseModel(
+                id = await self.database.execute(query),
+                **heshed_user.dict()
+            )
+        except UniqueViolationError:
+            raise HTTPException(status_code=400, detail={
+                'code': 0,
+                'message': 'Invalid email'
+            })
 
     async def get_user_by_id(
         self,
@@ -38,7 +46,7 @@ class Private:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
         return PrivateDetailUserResponseModel.parse_obj(userx)
 
-    async def get_all(
+    async def get(
         self,
         page: int, 
         size: int
@@ -68,3 +76,22 @@ class Private:
         await self.get_user_by_id(pk)
         query = user.delete().where(user.c.id==pk)
         await self.database.execute(query)
+
+    async def update_user_by_id(
+        self,
+        pk: int,
+        update_user: PrivateUpdateUserModel
+    ):
+        user_u = await self.get_user_by_id(pk)
+        for key, value in update_user:
+            setattr(user_u, key, value)
+        print(user_u)
+        user_u.pop('id', None) 
+        query = user.update().where(user.c.id==pk).values(**user_u.dict())
+        return PrivateDetailUserResponseModel(
+                id = await self.database.execute(query),
+                **user_u.dict()
+        )
+
+
+    

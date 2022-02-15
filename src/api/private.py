@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends
 from ..services.private import Private
-
 from ..models.private import (
     PrivateDetailUserResponseModel,
     PrivateCreateUserModel,
-    PrivateUsersListResponseModel
+    PrivateUsersListResponseModel,
+    PrivateUpdateUserModel
 )
+
+from fastapi import APIRouter, Depends, Response
 
 router = APIRouter(
     prefix='/private',
@@ -32,13 +33,21 @@ async def get_users(
     page: int = 0,
     size: int = 10
 ):
-    return await private.get_all(page, size) 
+    return await private.get(page, size) 
 
-@router.delete('/users/{pk}', status_code=204)
+@router.delete('/users/{pk}', status_code=204, response_class=Response)
 async def delete_user(
     pk: int,
     private: Private = Depends(),
 ):
     await private.delete_user_by_id(pk) 
+
+@router.patch('/users/{pk}', response_model=PrivateDetailUserResponseModel)
+async def update_user_by_id(
+    pk: int,
+    update_user: PrivateUpdateUserModel,
+    private: Private = Depends()
+):
+    return await private.update_user_by_id(pk, update_user) 
 
 

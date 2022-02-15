@@ -1,9 +1,12 @@
-from pydantic.main import BaseModel
 from .user import (
     UserBase, 
     UsersListElementModel
 )
 from .other import PaginatedMetaDataModel
+
+from datetime import date
+from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 
 class PrivateDetailUserResponseModel(UserBase):
@@ -12,6 +15,18 @@ class PrivateDetailUserResponseModel(UserBase):
 class PrivateCreateUserHesh(UserBase):
     heshed_password: str
     
+class PrivateUpdateUserModel(BaseModel):
+    first_name: str 
+    last_name: str
+    email: EmailStr
+    is_admin: bool
+    other_name: Optional[str] 
+    phone: Optional[str]
+    birthday:Optional[date]
+    city: Optional[int]
+    additional_info: Optional[str]
+
+
 class PrivateCreateUserModel(UserBase):
     password: str
 
