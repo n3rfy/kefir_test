@@ -2,8 +2,12 @@ from ..database.tables import user
 from ..database.database import get_database
 from ..models.private import (
     PrivateCreateUserModel,
-    PrivateDetailUserResponseModel
+    PrivateDetailUserResponseModel,
+    PrivateUsersListResponseModel,
+    PrivateUsersListHintMetaModel,
+    CitiesHintModel
 )
+from ..models.other import PaginatedMetaDataModel
 
 from databases import Database
 from fastapi import Depends, status, HTTPException
@@ -33,3 +37,34 @@ class Private:
         if userx is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
         return PrivateDetailUserResponseModel.parse_obj(userx)
+
+    async def get_all(
+        self,
+        page: int, 
+        size: int
+    ) -> PrivateUsersListResponseModel:
+        query = user.select().limit(size).offset(page*10)
+        users = await self.database.fetch_all(query)
+        return PrivateUsersListResponseModel(
+            data=users,
+            meta={
+                'pagination': PaginatedMetaDataModel(
+                    total=len(users),
+                    page=page,
+                    size=size),
+                'hint': PrivateUsersListHintMetaModel(
+                    city = [
+                        CitiesHintModel(id = 0,name ='moskow'),
+                    ] 
+                )
+
+            }
+        )
+    
+    async def delete_user_by_id(
+        self,
+        pk: int
+    ):
+        await self.get_user_by_id(pk)
+        query = user.delete().where(user.c.id==pk)
+        await self.database.execute(query)

@@ -1,7 +1,8 @@
 from datetime import date
 from typing import Optional
-
 from pydantic import BaseModel, EmailStr
+
+from .other import PaginatedMetaDataModel
 
 class UserBase(BaseModel):
     first_name: str
@@ -20,4 +21,12 @@ class UsersListElementModel(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
+
+class UsersListMetaDataModel(BaseModel):
+    pagination: PaginatedMetaDataModel
+
+class UsersListResponseModel(BaseModel):
+    data: list[UsersListElementModel]
+    meta: UsersListMetaDataModel
+
 

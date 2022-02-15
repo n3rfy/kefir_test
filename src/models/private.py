@@ -1,4 +1,9 @@
-from .user import UserBase
+from pydantic.main import BaseModel
+from .user import (
+    UserBase, 
+    UsersListElementModel
+)
+from .other import PaginatedMetaDataModel
 
 
 class PrivateDetailUserResponseModel(UserBase):
@@ -6,7 +11,7 @@ class PrivateDetailUserResponseModel(UserBase):
 
 class PrivateCreateUserHesh(UserBase):
     heshed_password: str
-   
+    
 class PrivateCreateUserModel(UserBase):
     password: str
 
@@ -23,3 +28,19 @@ class PrivateCreateUserModel(UserBase):
             city=self.city,
             additional_info=self.additional_info
         )
+
+class CitiesHintModel(BaseModel):
+    id: int
+    name: str
+
+class PrivateUsersListHintMetaModel(BaseModel):
+    city: list[CitiesHintModel]
+
+class PrivateUsersListMetaDataModel(BaseModel):
+    pagination: PaginatedMetaDataModel
+    hint: PrivateUsersListHintMetaModel
+
+class PrivateUsersListResponseModel(BaseModel):
+    data: list[UsersListElementModel]
+    meta: PrivateUsersListMetaDataModel
+

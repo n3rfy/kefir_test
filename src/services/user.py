@@ -1,10 +1,10 @@
 from ..database.tables import user
 from ..database.database import get_database
+from ..models.other import PaginatedMetaDataModel
 from ..models.user import (
-    UsersListElementModel,
+    UsersListResponseModel,
 )
 
-from typing import List
 from databases import Database
 from fastapi import Depends
 
@@ -16,8 +16,18 @@ class User:
         self,
         page: int, 
         size: int
-    ) -> List[UsersListElementModel]:
+    ) -> UsersListResponseModel:
         query = user.select().limit(size).offset(page*10)
-        return await self.database.fetch_all(query)
+        users = await self.database.fetch_all(query)
+        return UsersListResponseModel(
+            data=users,
+            meta={
+                'pagination': PaginatedMetaDataModel(
+                    total=len(users),
+                    page=page,
+                    size=size
+                )
+            }
+        )
     
 
