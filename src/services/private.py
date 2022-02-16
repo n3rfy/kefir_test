@@ -11,6 +11,7 @@ from ..models.user import (
     UsersListElementModel
 )
 from ..core.exceptions import error
+from ..core.secure import hash_password
 
 from sqlalchemy.orm import Session
 from fastapi import Depends, status, HTTPException
@@ -23,32 +24,45 @@ class Private:
     @error
     def create(
         self,
-        create_user: PrivateCreateUserModel
+        create_user: PrivateCreateUserModel,
+        is_admin: bool 
     ) -> PrivateDetailUserResponseModel:
+        if not is_admin:
+            raise HTTPException(
+                status_code=401
+            )
+        user_dict = create_user.dict()
+        password = hash_password(user_dict['password'])
+        del user_dict['password']
         user = tables.User(
-            first_name = create_user.first_name,
-            last_name = create_user.last_name,
-            email = create_user.email,
-            is_admin = create_user.is_admin,
-            password_hash = create_user.password + '123',
-            other_name = create_user.other_name,
-            phone = create_user.phone,
-            birthday = create_user.birthday,
-            city = create_user.city,
-            additional_info = create_user.additional_info,
-        )
+            password_hash = password,
+            **user_dict
+            )
         self.session.add(user)
         self.session.commit()
         return PrivateDetailUserResponseModel(**user.get_dict())
 
-    def get_user_by_id(
-        self,
-        id: int
+    def get_user_by_id(self,
+        id: int,
+        is_admin: bool
     ) -> PrivateDetailUserResponseModel:
-        user = self._get_user_by_id(id)
+        if not is_admin:
+            raise HTTPException(
+                status_code=401
+            )
+        user = self._get_user_by_id(id, is_admin)
         return PrivateDetailUserResponseModel(**user.get_dict())
-
-    def get(self, page: int, size: int) -> PrivateUsersListResponseModel:
+    @error
+    def get(
+        self, 
+        page: int,
+        size: int,
+        is_admin: bool
+    ) -> PrivateUsersListResponseModel:
+        if not is_admin:
+            raise HTTPException(
+                status_code=401
+            )        
         users = self.session.query(tables.User).limit(size).offset(page*10).all()
         citys = self.session.query(tables.City).all()
         data = [ UsersListElementModel(**user.get_dict()) for user in users ]
@@ -61,23 +75,37 @@ class Private:
             citys=citys
         )
 
-    def delete_user_by_id(self, id: int):
-        user = self._get_user_by_id(id)
+    def delete_user_by_id(self, id: int, is_admin: bool):
+        if not is_admin:
+            raise HTTPException(
+                status_code=401
+            )        
+        user = self._get_user_by_id(id, is_admin)
         self.session.delete(user)
         self.session.commit()
-         
+
+    @error 
     def update_user_by_id(
         self,
         id: int,
-        update_user: PrivateUpdateUserModel
+        update_user: PrivateUpdateUserModel,
+        is_admin: bool
     ) -> PrivateDetailUserResponseModel:
-        user = self._get_user_by_id(id) 
+        if not is_admin:
+            raise HTTPException(
+                status_code=401
+            )        
+        user = self._get_user_by_id(id, is_admin) 
         for key, value in update_user:
             setattr(user, key, value)
         self.session.commit()
         return PrivateDetailUserResponseModel(**user.get_dict())
 
-    def _get_user_by_id(self, id: int) -> tables.User:
+    def _get_user_by_id(self, id: int, is_admin: bool) -> tables.User:
+        if not is_admin:
+            raise HTTPException(
+                status_code=401
+            )        
         user = self.session.query(tables.User).filter(tables.User.id==id).first()
         if not user:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
