@@ -8,13 +8,12 @@ from fastapi import HTTPException, Depends, status, Cookie
 from typing import Optional
 
 
-def get_user(
+def get_user_email(
     access_token: Optional[str] = Cookie(None)
-) -> Optional[CurrentUserResponseModel]:
+) -> Optional[str]:
     if access_token:
-        user = verify_token(access_token)
-        if user is not None:
-            return CurrentUserResponseModel(**user)
+        email = verify_token(access_token)
+        return email
     return None
 
 class Auth:
@@ -23,8 +22,11 @@ class Auth:
 
     def autheficate_user(self, login_data: LoginModel):
         exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Incorrect username or password',
+            status_code=400,
+            detail={
+                'code':0,
+                'message': 'Incorrect username or password'
+            },
             headers={'WWW-Authenticate': 'Bearer'},
         )
         user = (
@@ -37,5 +39,5 @@ class Auth:
             raise exception
         if not verify_password(login_data.password, user.password_hash):
             raise exception
-        token = create_token(user)
+        token = create_token(login_data.email)
         return token, CurrentUserResponseModel(**user.get_dict())

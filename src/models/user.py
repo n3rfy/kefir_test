@@ -14,7 +14,6 @@ class UserBase(BaseModel):
     birthday:Optional[date] = None
     city: Optional[int] = None
     additional_info: Optional[str] = None
-
     
 class UsersListElementModel(BaseModel):
     id: int
@@ -42,3 +41,13 @@ class UsersListResponseModel(BaseModel):
             )
         )
 
+class UpdateUserModel(BaseModel):
+    first_name: str
+    last_name: str
+    email: EmailStr
+    other_name: Optional[str]
+    phone: Optional[str]
+    birthday:Optional[date]
+
+class UpdateUserResponseModel(UpdateUserModel):
+    id: int 

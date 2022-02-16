@@ -1,6 +1,7 @@
 from sqlalchemy.exc import IntegrityError, DataError
 from pydantic import BaseModel
-from fastapi import HTTPException
+
+from .exc_class import ExceptionAll
 
 import functools
 
@@ -12,41 +13,26 @@ def error(fn):
             return fn(*args, **kwargs)
         except IntegrityError as e:
             if 'UniqueViolation' in str(e):
-                raise HTTPException(
-                    status_code=400, 
-                    detail={
-                        'code':0,
-                        'message':'email alredy taken'
-                    }
+                raise ExceptionAll(
+                    status_code=400,
+                    content = {'code':0, 'message':'email alredy taken'}
                 )
-                
+
             elif 'ForeignKeyViolation' in str(e):
-                raise HTTPException(
-                    400,
-                    detail={
-                        'code':0,
-                        'message':'city not found'
-                    }
+                raise ExceptionAll(
+                    status_code=400,
+                    content = {'code':0, 'message':'city not found'}
                 )
         except DataError as e:
             if 'LIMIT must not be negative' in str(e):
-                raise HTTPException(
-                    400,
-                    detail={
-                        'code':0,
-                        'message':'size must not be negative'
-                    }
+                 raise ExceptionAll( status_code=400,
+                    content = {'code':0, 'message':'size must not be negative'}
                 )
             elif 'OFFSET must not be negative' in str(e):
-                raise HTTPException(
-                    400,
-                    detail={
-                        'code':0,
-                        'message':'page must not be negative'
-                    }
+                  raise ExceptionAll(
+                    status_code=400,
+                    content = {'code':0, 'message':'page must not be negative'}
                 )
-
-
 
     return inner
 
@@ -61,5 +47,3 @@ class ErrorResponseModel(BaseModel):
                 "message":"string"
             },
         }
-
-

@@ -1,6 +1,4 @@
 from ..core.settings import settings
-from ..database import tables
-from ..models.other import CurrentUserResponseModel
 
 from werkzeug.security import (
     generate_password_hash,
@@ -18,15 +16,13 @@ def verify_password(password: str, hashed_password: str) -> bool:
 def hash_password(password: str) -> str:
     return generate_password_hash(password)
 
-def create_token(user: tables.User) -> str:
-        user_data = CurrentUserResponseModel(**user.get_dict()).dict()
-        user_data['birthday'] = str(user_data['birthday'])
+def create_token(email: str) -> str:
         now = datetime.utcnow()
         payload = {
             'iat': now,
             'nbf': now,
             'exp': now + timedelta(seconds=settings.jwt_expires_s),
-            'user': user_data
+            'email': str(email)
         }
         token = jwt.encode(
             payload,
@@ -35,7 +31,7 @@ def create_token(user: tables.User) -> str:
         )
         return token
 
-def verify_token(token: str) -> Optional[dict]:
+def verify_token(token: str) -> Optional[str]:
         try:
             payload = jwt.decode(
                 token,
@@ -47,4 +43,4 @@ def verify_token(token: str) -> Optional[dict]:
         except:
             return None
             
-        return payload.get('user')
+        return payload.get('email')

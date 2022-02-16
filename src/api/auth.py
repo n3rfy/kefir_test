@@ -2,6 +2,7 @@ from ..models.other import (
     LoginModel,
     CurrentUserResponseModel
 )
+from ..core.exceptions import ErrorResponseModel
 from ..services.auth import Auth
 
 
@@ -11,7 +12,13 @@ router = APIRouter(
     tags=['auth']
 )
 
-@router.post('/login', response_model=CurrentUserResponseModel)
+@router.post(
+    '/login', 
+    response_model=CurrentUserResponseModel,
+    responses = {
+        400: {'model': ErrorResponseModel}
+    }
+)
 def login_user(
     auth_data: LoginModel,
     response: Response,
@@ -24,7 +31,7 @@ def login_user(
         httponly=True)
     return model 
 
-@router.get('/logout', status_code=200)
+@router.get('/logout',status_code=200)
 def logout_user(response: Response):
     response.delete_cookie('access_token')
 
