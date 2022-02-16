@@ -8,10 +8,13 @@ from fastapi import HTTPException, Depends, status, Cookie
 from typing import Optional
 
 
-def check_admin(access_token: Optional[str] = Cookie(None)) -> Optional[bool]:
+def get_user(
+    access_token: Optional[str] = Cookie(None)
+) -> Optional[CurrentUserResponseModel]:
     if access_token:
-        is_admin = verify_token(access_token)
-        return is_admin
+        user = verify_token(access_token)
+        if user is not None:
+            return CurrentUserResponseModel(**user)
     return None
 
 class Auth:
@@ -36,5 +39,3 @@ class Auth:
             raise exception
         token = create_token(user)
         return token, CurrentUserResponseModel(**user.get_dict())
-
-    

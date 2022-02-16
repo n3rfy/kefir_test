@@ -18,7 +18,6 @@ def login_user(
     auth: Auth = Depends(),
 ):
     token, model = auth.autheficate_user(auth_data) 
-    print(token)
     response.set_cookie(
         key='access_token', 
         value=token, 
