@@ -3,7 +3,9 @@ from .api import router
 from fastapi.responses import JSONResponse
 from .core.exc_class import ExceptionAll
 
-app = FastAPI()
+app = FastAPI(
+    title='Kefir Python Junior Test'
+)
 
 @app.exception_handler(ExceptionAll)
 def validation_exception_handler(request: Request, exc: ExceptionAll):

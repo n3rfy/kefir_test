@@ -26,10 +26,8 @@ class User(Base):
     additional_info = Column(String)
 
     def get_dict(self):
-        dict_table = {
-            c.name: getattr(self, c.name) for c in self.__table__.columns
-        }
-        return dict_table
+        dict_t = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return dict_t
 
 
 class City(Base):
@@ -39,8 +37,6 @@ class City(Base):
     name = Column(String)
 
     def get_dict(self):
-        dict_table = {
-            c.name: getattr(self, c.name) for c in self.__table__.columns
-        }
-        return dict_table
+        dict_t = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return dict_t
 

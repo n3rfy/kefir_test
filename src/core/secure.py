@@ -4,16 +4,14 @@ from werkzeug.security import (
     generate_password_hash,
     check_password_hash
 )
-
 from datetime import datetime, timedelta
 from jose import jwt, JWTError 
 from typing import Optional
 
-
 def verify_password(password: str, hashed_password: str) -> bool:
     return check_password_hash(hashed_password, password)
 
-def hash_password(password: str) -> str:
+def get_hash_password(password: str) -> str:
     return generate_password_hash(password)
 
 def create_token(email: str) -> str:
@@ -42,5 +40,4 @@ def verify_token(token: str) -> Optional[str]:
             return None
         except:
             return None
-            
         return payload.get('email')

@@ -19,7 +19,8 @@ class CurrentUserResponseModel(BaseModel):
     phone: str
     birthday: date
 
-class Error_401(BaseModel):
-    info: str
+class CitiesHintModel(BaseModel):
+    id: int
+    name: str
 
 

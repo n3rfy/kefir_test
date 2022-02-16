@@ -7,18 +7,15 @@ from ..models.private import (
     PrivateUpdateUserModel,
     CitiesHintModel
 )
-from ..models.user import (
-    UsersListElementModel
-)
+from ..models.user import UsersListElementModel
 from ..core.exceptions import error
-from ..core.secure import hash_password
+from ..core.exc_class import ExceptionAll
+from ..core.secure import get_hash_password
 
 from sqlalchemy.orm import Session
 from fastapi import Depends, status, HTTPException
 
-
 class Private:
-      
     def __init__(self, session: Session = Depends(get_session)):
         self.session = session 
 
@@ -41,10 +38,10 @@ class Private:
     ) -> PrivateDetailUserResponseModel:
         self.permissions(email)
         user_dict = create_user.dict()
-        password = hash_password(user_dict['password'])
+        password_hash = get_hash_password(user_dict['password'])
         del user_dict['password']
         user = tables.User(
-            password_hash = password,
+            password_hash = password_hash,
             **user_dict
             )
         self.session.add(user)
@@ -66,7 +63,12 @@ class Private:
         size: int,
         email: str
     ) -> PrivateUsersListResponseModel:
-                     
+
+        # if size > 10:
+        #      raise ExceptionAll(
+        #             status_code=400,
+        #             content = {'code':0, 'message':'size > 10'}
+        #         )
         self.permissions(email)
         users = self.session.query(tables.User).limit(size).offset(page*10).all()
         citys = self.session.query(tables.City).all()
@@ -104,7 +106,7 @@ class Private:
         self, 
         id: int,
     ) -> tables.User:
-        userx = self.session.query(tables.User).filter(tables.User.id==id).first()
+        userx=self.session.query(tables.User).filter(tables.User.id==id).first()
         if not userx:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         return userx

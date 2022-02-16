@@ -45,7 +45,7 @@ class User:
         return user
 
     @error
-    def patch_user(
+    def update_user(
         self,
         update_user: UpdateUserModel,
         email: str

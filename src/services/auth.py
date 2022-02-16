@@ -4,13 +4,11 @@ from ..database import tables
 from ..database.database import get_session
 
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, Depends, status, Cookie
+from fastapi import HTTPException, Depends, Cookie
 from typing import Optional
 
 
-def get_user_email(
-    access_token: Optional[str] = Cookie(None)
-) -> Optional[str]:
+def get_user_email(access_token: Optional[str] = Cookie(None)) -> Optional[str]:
     if access_token:
         email = verify_token(access_token)
         return email
@@ -23,10 +21,7 @@ class Auth:
     def autheficate_user(self, login_data: LoginModel):
         exception = HTTPException(
             status_code=400,
-            detail={
-                'code':0,
-                'message': 'Incorrect username or password'
-            },
+            detail={'code':0,'message': 'Incorrect username or password'},
             headers={'WWW-Authenticate': 'Bearer'},
         )
         user = (

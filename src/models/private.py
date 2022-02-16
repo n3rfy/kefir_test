@@ -1,8 +1,5 @@
-from .user import (
-    UserBase, 
-    UsersListElementModel
-)
-from .other import PaginatedMetaDataModel
+from .user import UserBase, UsersListElementModel
+from .other import PaginatedMetaDataModel, CitiesHintModel
 
 from datetime import date
 from pydantic import BaseModel, EmailStr
@@ -29,10 +26,6 @@ class PrivateUpdateUserModel(BaseModel):
 
 class PrivateCreateUserModel(UserBase):
     password: str
-
-class CitiesHintModel(BaseModel):
-    id: int
-    name: str
 
 class PrivateUsersListHintMetaModel(BaseModel):
     city: list[CitiesHintModel]

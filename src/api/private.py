@@ -5,8 +5,7 @@ from ..models.private import (
     PrivateUsersListResponseModel,
     PrivateUpdateUserModel
 )
-from ..models.other import CurrentUserResponseModel, Error_401
-from ..core.exceptions import ErrorResponseModel
+from ..core.exc_class import ErrorResponseModel
 from ..services.auth import get_user_email
 
 from fastapi import APIRouter, Depends, Response
@@ -19,29 +18,29 @@ router = APIRouter(
 @router.get(
     '/users/', 
     response_model=PrivateUsersListResponseModel,
+    description='Краткая информация (включая city) о всех пользователях (admin)',
     responses = {
         400: {'model': ErrorResponseModel},
         401: {'model': str},
         403: {'model': str}
-
     }
 )
 def get_users(
     private: Private = Depends(),
     page: int = 0,
     size: int = 10,
-    email: str = Depends(get_user_email),
+    email: str = Depends(get_user_email)
 ):
     return private.get(page, size, email=email) 
 
 @router.post(
     '/users', 
     response_model=PrivateDetailUserResponseModel,
+    description='Добавление нового пользователя (admin)',
     responses= {
         400: {'model': ErrorResponseModel},
         401: {'model': str},
         403: {'model': str}
-
     }
 )
 def create_user(
@@ -54,6 +53,7 @@ def create_user(
 @router.get(
     '/users/{pk}', 
     response_model=PrivateDetailUserResponseModel,
+    description='Полная информация о пользователе (admin)',
     responses= {
         400: {'model': ErrorResponseModel},
         401: {'model': str},
@@ -72,6 +72,7 @@ def get_user_by_id(
 @router.delete(
     '/users/{pk}', 
     status_code=204, 
+    description='Удаление пользователя (admin)',
     response_class=Response,
     responses= {
         401: {'model': str},
@@ -89,6 +90,7 @@ def delete_user(
 @router.patch(
     '/users/{pk}', 
     response_model=PrivateDetailUserResponseModel,
+    description='Изменение данных любого пользователя (admin)',
     responses= {
         400: {'model': ErrorResponseModel},
         401: {'model': str},

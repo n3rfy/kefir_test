@@ -1,8 +1,6 @@
-from sqlalchemy.exc import IntegrityError, DataError
-from pydantic import BaseModel
-
 from .exc_class import ExceptionAll
 
+from sqlalchemy.exc import IntegrityError, DataError
 import functools
 
 def error(fn):
@@ -33,17 +31,6 @@ def error(fn):
                     status_code=400,
                     content = {'code':0, 'message':'page must not be negative'}
                 )
-
     return inner
 
-class ErrorResponseModel(BaseModel):
-    code: int
-    message: str
 
-    class Config:
-        schema_extra = {
-            "example": {
-                "code": 0,
-                "message":"string"
-            },
-        }
