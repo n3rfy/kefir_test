@@ -9,7 +9,7 @@ services:
     ports:
       - 8000:8000
     environment:
-      - DATABASE_URL=postgresql://nerfy:2405@db:5432/kefirdb
+      - DATABASE_URL=postgresql://kefir:kefir@db:5432/kefirdb
       - JWT_SECRET=itgk16oBqKfZ5V9IV4h9d5DJYvcRWnlFUQkwXcyr2Jw
     depends_on:
       - db
@@ -20,8 +20,8 @@ services:
     expose:
       - 5432
     environment:
-      - POSTGRES_USER=nerfy
-      - POSTGRES_PASSWORD=2405
+      - POSTGRES_USER=kefir
+      - POSTGRES_PASSWORD=kefir
       - POSTGRES_DB=kefirdb
 
 volumes:

@@ -15,14 +15,12 @@ def error(fn):
                     status_code=400,
                     content = {'code':0, 'message':'email alredy taken'}
                 )
-
             elif 'UniqueViolation' in str(e) and 'name' in str(e):
                 raise ExceptionAll(
                     status_code=400,
                     content = {'code':0, 'message':'city alredy have'}
                 )
-
-            elif 'ForeignKeyViolation' in str(e) and 'users_city_fkey' in str(e):
+            elif 'ForeignKeyViolation' in str(e) and '(id)=' in str(e):
                 raise ExceptionAll(
                     status_code=400,
                     content = {
@@ -30,14 +28,11 @@ def error(fn):
                         'message':"You can't delete a city! " + 
                                   "There is a user who is join with it"}
                 )
-
-            elif 'ForeignKeyViolation' in str(e):
+            elif 'ForeignKeyViolation' in str(e) and '(city)=' in str(e):
                 raise ExceptionAll(
                     status_code=400,
                     content = {'code':0, 'message':'city not found'}
                 )
-        except Exception as e:
-            print(e)
     return inner
 
 

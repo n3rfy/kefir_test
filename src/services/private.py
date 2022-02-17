@@ -63,7 +63,6 @@ class Private:
         size: int,
         email: str
     ) -> PrivateUsersListResponseModel:
-
         self.permissions(email)
         users = self.session.query(tables.User).limit(size).offset(page*10).all()
         citys = self.session.query(tables.City).all()
@@ -102,11 +101,11 @@ class Private:
         self,
         city: CitiesCreate,
         email: str
-    ) -> PrivateDetailUserResponseModel:
+    ) -> CitiesHintModel:
         self.permissions(email)
         city_t = tables.City(
             **city.dict()
-            )
+        )
         self.session.add(city_t)
         self.session.commit()
         return CitiesHintModel(**city_t.get_dict())
@@ -140,4 +139,3 @@ class Private:
         if not userx:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         return userx
-    
