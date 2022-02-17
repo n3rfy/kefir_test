@@ -1,7 +1,7 @@
 Тестовое задание на позицию Python Junior Backend разработчик
 
 
-<br>Установка:
+<br><h1>Установка:</h1>
 <br>1)Склонировать репозиторий
 <br>2)Отредактировать файл docker-compose.yml
   <br>&nbsp;-Изменить переменные:
@@ -19,43 +19,43 @@
 <br>&nbsp;-Убрал login, и заменил аунтификацию на email (Немного пожалел, потому что после изменения данных приходиться релогиниться)
 <br>&nbsp;-Добавил создание и удаление сity, потому что никак нельзя было расширять или редактировать города
 <br>&nbsp;-Убрал pk в запросе patch /user/, потому что смысла в нем нет, тк user может менять лишь свои данные, следовательно pk - бесполезен
-
-<br>Описание:
-<br>1)auth
-<br>&nbsp;-login:
+<br>
+<br><h1>Описание:</h1>
+<br><b>1)auth</b>
+<br>&nbsp;<b>-login:</b>
 <br>&nbsp;&nbsp;-Делал, как было в тестовом задании, логин через cookies, хотя можно было бы через JWT.
 <br>&nbsp;&nbsp;По факту, я в куки и клал JWT, дальше каждый запрос расшифровывал его
 <br>&nbsp;&nbsp;-Отличие от тестого задания, аунтификация по email и password
-<br>&nbsp;-logout:
+<br>&nbsp;<b>-logout:</b>
 <br>&nbsp;&nbsp;-Просто удаляет cookies и возвращает пользователя
-<br>2)user
+<br><b>2)user</b>
 <br>&nbsp;"Имеет доступ на уровне пользователя"
 <br>&nbsp;Перед каждым запросом проверяет на аунтифицированного пользователя
-<br>&nbsp;-users/current:
+<br>&nbsp;<b>-users/current:</b>
 <br>&nbsp;&nbsp;-Возвращает информацию о текущем пользователе, берет email из куки и уже в бд ищет всю информацию о пользователе
-<br>&nbsp;-users (get):
+<br>&nbsp;<b>-users (get):</b>
 <br>&nbsp;&nbsp;-Получает краткую информацию о всех пользователях (в отличии от admin, тут не возвращаются city)
 <br>&nbsp;&nbsp;-page - неотрицательный, size - от 1 и до 10 
-<br>&nbsp;-users (patch):
+<br>&nbsp;<b>-users (patch):</b>
 <br>&nbsp;&nbsp;-Отличие от тестого задания в том, что я не использую pk, тк у пользователя есть куки, и в них храниться информация о самом пользователе, тот pk - не нужен
 <br>&nbsp;&nbsp;-Так как, email хранится в cookies, и его могут поменять, то приходиться удалять куки, чтобы не было ошибок
-<br>3)admin
+<br><b>3)admin</b>
 <br>&nbsp;"Имеет максимальную привелегию и доступ"
 <br>&nbsp;Перед каждым запросом проверяет на is_admin
-<br>&nbsp;-private/users/ (get):
+<br>&nbsp;<b>-private/users/ (get):</b>
 <br>&nbsp;&nbsp;-Возвращает краткую информацию о всех пользователях (в отличии от user, возвращает city)
 <br>&nbsp;&nbsp;-page - только положительный, size - от 1 и до 10 
-<br>&nbsp;-private/users/ (create):
+<br>&nbsp;<b>-private/users/ (create):</b>
 <br>&nbsp;&nbsp;-Если хотите привязать к user город, то сначала нужно создать данный город
 <br>&nbsp;&nbsp;-Добавление пользователя, проверки на города и на повторение email
-<br>&nbsp;-private/user/{pk} (get):
+<br>&nbsp;<b>-private/user/{pk} (get):</b>
 <br>&nbsp;&nbsp;-Получает полную информацию о текущем пользователе, в том числе и city, и additional_info
-<br>&nbsp;-private/users/{pk} (delete):
+<br>&nbsp;<b>-private/users/{pk} (delete):</b>
 <br>&nbsp;&nbsp;-Удаляет выбранного пользователя, если нет, то 404 error
-<br>&nbsp;-private/users/{pk} (patch):
+<br>&nbsp;<b>-private/users/{pk} (patch):</b>
 <br>&nbsp;&nbsp;-Обновление информации выбранного пользователя
-<br>&nbsp;-private/city/{pk} (post):
+<br>&nbsp;<b>-private/city/{pk} (post):</b>
 <br>&nbsp;&nbsp;-Добавление нового города, если город уже создан, то 400 error
-<br>&nbsp;-private/city/{pk} (delete):
+<br>&nbsp;<b>-private/city/{pk} (delete):</b>
 <br>&nbsp;&nbsp;-Удаление выбранного города, если город привязан к какому-то пользователю, то удаление не произойдет
   
