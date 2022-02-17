@@ -58,4 +58,17 @@
 <br>&nbsp;&nbsp;-Добавление нового города, если город уже создан, то 400 error
 <br>&nbsp;<b>-private/city/{pk} (delete):</b>
 <br>&nbsp;&nbsp;-Удаление выбранного города, если город привязан к какому-то пользователю, то удаление не произойдет
-  
+<br>
+<br><h1>Описание Ошибок:</h1>
+<br>&nbsp;<b>code: 1</b>
+<br>&nbsp;&nbsp;message: email alredy taken
+<br>&nbsp;&nbsp;Описание: ошибка возникает при регистрации пользователя, если email уже существует в бд
+<br>&nbsp;<b>code: 2</b>
+<br>&nbsp;&nbsp;message: city alredy have
+<br>&nbsp;&nbsp;Описание: ошибка возникает при добавление ногового города, если уже он создан
+<br>&nbsp;<b>code: 3</b>
+<br>&nbsp;&nbsp;message: You can't delete a city! There is a user who is join with it
+<br>&nbsp;&nbsp;Описание: Нельзя удалять город, если он привязан к какому-то пользователю
+<br>&nbsp;<b>code: 4</b>
+<br>&nbsp;&nbsp;message: city not found
+<br>&nbsp;&nbsp;Описание: возникает при добавлении пользователю несуществующего города 
