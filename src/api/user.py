@@ -35,7 +35,8 @@ def get_current_user(
 @router.get(
     '/',
     response_model=UsersListResponseModel,
-    description='Краткая информация о всех пользователях (user)',
+    description='Краткая информация о всех пользователях (user)<br>'+ 
+                'page > 0<br>0 < size < 11 ',
     responses = {
         400: {'model': ErrorResponseModel},
         401: {'model': str}
@@ -52,7 +53,8 @@ def get_users(
 @router.patch(
     '/', 
     response_model=UpdateUserResponseModel,
-    description='Изменение своих данных (user)',
+    description='Изменение своих данных (user)<br>'+
+                'Сбрасываются куки нужен релогин!',
     responses = {
         400: {'model': ErrorResponseModel},
         401: {'model': str}

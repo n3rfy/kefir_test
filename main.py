@@ -7,5 +7,5 @@ if __name__ == "__main__":
         'src.app:app',
         host=settings.server_host,
         port=settings.server_port,
-        reload=True
+        refresh=True
     )

@@ -20,7 +20,8 @@ router = APIRouter(
 @router.get(
     '/users/', 
     response_model=PrivateUsersListResponseModel,
-    description='Краткая информация (включая city) о всех пользователях (admin)',
+    description='Краткая информация (включая city) о всех пользователях (admin)'+
+                '<br>page > 0<br>0 < size < 11 ',
     responses = {
         400: {'model': ErrorResponseModel},
         401: {'model': str},
