@@ -1,4 +1,4 @@
-Тестовое задание на позицию Python Junior Backend разработчик
+<title>Тестовое задание на позицию Python Junior Backend разработчик</title>
 
 
 <br><h1>Установка:</h1>
