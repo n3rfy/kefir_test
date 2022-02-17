@@ -11,7 +11,7 @@ from ..models.other import (
 )
 
 from fastapi import APIRouter, Depends, Response
-
+from pydantic import conint
 router = APIRouter(
     prefix='/users',
     tags=['user']
@@ -42,9 +42,9 @@ def get_current_user(
     }
 )
 def get_users(
+    page: conint(gt=-1) = 0,
+    size: conint(gt=0, lt=11) = 10,
     user_service: User = Depends(),
-    page: int = 0,
-    size: int = 10,
     email: str = Depends(get_user_email),
 ):
     return user_service.get(page, size, email=email) 

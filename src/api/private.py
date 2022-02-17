@@ -5,10 +5,12 @@ from ..models.private import (
     PrivateUsersListResponseModel,
     PrivateUpdateUserModel
 )
+from ..models.other import CitiesHintModel, CitiesCreate
 from ..core.exc_class import ErrorResponseModel
 from ..services.auth import get_user_email
 
 from fastapi import APIRouter, Depends, Response
+from pydantic import conint
 
 router = APIRouter(
     prefix='/private',
@@ -26,9 +28,9 @@ router = APIRouter(
     }
 )
 def get_users(
+    page: conint(gt=-1) = 0,
+    size: conint(gt=0,lt=11) = 10,
     private: Private = Depends(),
-    page: int = 0,
-    size: int = 10,
     email: str = Depends(get_user_email)
 ):
     return private.get(page, size, email=email) 
@@ -106,4 +108,37 @@ def update_user_by_id(
 ):
     return private.update_user_by_id(pk, update_user, email=email) 
 
+@router.post(
+    '/city', 
+    response_model=CitiesHintModel,
+    description='Добавление нового города (admin)',
+    responses= {
+        400: {'model': ErrorResponseModel},
+        401: {'model': str},
+        403: {'model': str}
+    }
+)
+def create_city(
+    city: CitiesCreate,
+    email: str = Depends(get_user_email),
+    private: Private = Depends()
+):
+    return private.create_city(city, email=email) 
 
+@router.delete(
+    '/city/{pk}', 
+    status_code=204, 
+    description='Удаление города (admin)',
+    response_class=Response,
+    responses= {
+        401: {'model': str},
+        403: {'model': str},
+        404: {'model': str}
+    }
+)
+def delete_city(
+    pk: int,
+    email: str = Depends(get_user_email),
+    private: Private = Depends(),
+):
+    private.delete_city_by_id(pk, email=email) 

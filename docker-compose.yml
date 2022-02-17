@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn src.app:app --host 0.0.0.0'
+    volumes:
+      - .:/app
+    ports:
+      - 8000:8000
+    environment:
+      - DATABASE_URL=postgresql://nerfy:2405@db:5432/kefirdb
+      - JWT_SECRET=itgk16oBqKfZ5V9IV4h9d5DJYvcRWnlFUQkwXcyr2Jw
+    depends_on:
+      - db
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=nerfy
+      - POSTGRES_PASSWORD=2405
+      - POSTGRES_DB=kefirdb
+
+volumes:
+  postgres_data:

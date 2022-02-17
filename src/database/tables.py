@@ -34,7 +34,7 @@ class City(Base):
     __tablename__ = 'city'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String)
+    name = Column(String, unique=True)
 
     def get_dict(self):
         dict_t = {c.name: getattr(self, c.name) for c in self.__table__.columns}

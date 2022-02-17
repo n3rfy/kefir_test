@@ -8,8 +8,8 @@ from ..models.private import (
     CitiesHintModel
 )
 from ..models.user import UsersListElementModel
+from ..models.other import CitiesCreate, CitiesHintModel
 from ..core.exceptions import error
-from ..core.exc_class import ExceptionAll
 from ..core.secure import get_hash_password
 
 from sqlalchemy.orm import Session
@@ -64,11 +64,6 @@ class Private:
         email: str
     ) -> PrivateUsersListResponseModel:
 
-        # if size > 10:
-        #      raise ExceptionAll(
-        #             status_code=400,
-        #             content = {'code':0, 'message':'size > 10'}
-        #         )
         self.permissions(email)
         users = self.session.query(tables.User).limit(size).offset(page*10).all()
         citys = self.session.query(tables.City).all()
@@ -101,6 +96,30 @@ class Private:
             setattr(user, key, value)
         self.session.commit()
         return PrivateDetailUserResponseModel(**user.get_dict())
+
+    @error
+    def create_city(
+        self,
+        city: CitiesCreate,
+        email: str
+    ) -> PrivateDetailUserResponseModel:
+        self.permissions(email)
+        city_t = tables.City(
+            **city.dict()
+            )
+        self.session.add(city_t)
+        self.session.commit()
+        return CitiesHintModel(**city_t.get_dict())
+    
+    @error
+    def delete_city_by_id(self, id: int, email: str):
+        self.permissions(email)
+        city =self.session.query(tables.City).filter(tables.City.id==id).first()
+        if not city:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+        self.session.delete(city)
+        self.session.commit()
+
 
     def _get_user_by_id(
         self, 
