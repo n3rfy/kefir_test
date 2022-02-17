@@ -1,4 +1,4 @@
-<title>Тестовое задание на позицию Python Junior Backend разработчик</title>
+<h1>Тестовое задание на позицию Python Junior Backend разработчик</h1>
 
 
 <br><h1>Установка:</h1>
